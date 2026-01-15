@@ -62,7 +62,6 @@
                                 <li class="nav-item">
                                     <a class="ud-menu-scroll" href="#home">Kezdőlap</a>
                                 </li>
-
                                 <li class="nav-item">
                                     <a class="ud-menu-scroll" href="#about">Rólunk</a>
                                 </li>
@@ -852,30 +851,38 @@
                     <div class="ud-contact-form-wrapper wow fadeInUp"
                          data-wow-delay=".2s">
                         <h3 class="ud-contact-form-title">Küldj üzenetet</h3>
-                        <form class="ud-contact-form">
+                        <form id="contactForm" class="ud-contact-form">
                             <div class="ud-form-group">
                                 <label for="fullName">Név*</label>
                                 <input type="text"
+                                       id="fullName"
                                        name="fullName"
-                                       placeholder="Adam Gelius" />
+                                       placeholder="Adam Gelius"
+                                       required />
                             </div>
                             <div class="ud-form-group">
                                 <label for="email">Email*</label>
                                 <input type="email"
+                                       id="email"
                                        name="email"
-                                       placeholder="example@yourmail.com" />
+                                       placeholder="example@yourmail.com"
+                                       required />
                             </div>
                             <div class="ud-form-group">
                                 <label for="phone">Telefonszám*</label>
                                 <input type="text"
+                                       id="phone"
                                        name="phone"
-                                       placeholder="+36 70 5211 552" />
+                                       placeholder="+36 70 5211 552"
+                                       required />
                             </div>
                             <div class="ud-form-group">
                                 <label for="message">Üzenet*</label>
-                                <textarea name="message"
+                                <textarea id="message"
+                                          name="message"
                                           rows="1"
-                                          placeholder="írd ide az üzeneted"></textarea>
+                                          placeholder="írd ide az üzeneted"
+                                          required></textarea>
                             </div>
                             <div class="ud-form-group mb-0">
                                 <button type="submit" class="ud-main-btn">
@@ -1099,6 +1106,71 @@
     <script src="assets/js/wow.min.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
+        // ==== Contact form handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const contactForm = document.getElementById('contactForm');
+            
+            if (contactForm) {
+                contactForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    // Get form data
+                    const formData = {
+                        Name: document.getElementById('fullName').value.trim(),
+                        Email: document.getElementById('email').value.trim(),
+                        PhoneNumber: document.getElementById('phone').value.trim(),
+                        Message: document.getElementById('message').value.trim()
+                    };
+                    
+                    // Validate required fields
+                    if (!formData.Name || !formData.Email || !formData.PhoneNumber || !formData.Message) {
+                        alert('Kérjük, töltse ki az összes kötelező mezőt!');
+                        return;
+                    }
+                    
+                    // Disable submit button during request
+                    const submitBtn = contactForm.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.textContent;
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Küldés...';
+                    
+                    try {
+                        const response = await fetch('https://localhost:7219/api/Home/SendMessage', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(formData)
+                        });
+                        
+                        if (response.status === 200) {
+                            // Success
+                            alert('Az üzenet sikeresen elküldve');
+                            contactForm.reset(); // Clear the form
+                        } else {
+                            // Error
+                            const errorText = await response.text().catch(() => 'Ismeretlen hiba');
+                            alert(`Az üzenet küldés során hiba lépett fel (${response.status}). Próbálja később`);
+                            console.error('API Error:', response.status, errorText);
+                        }
+                    } catch (error) {
+                        // Network error or CORS issues
+                        if (error.message === 'Failed to fetch') {
+                            alert('Hálózati hiba: Ellenőrizze, hogy a backend API szerver fut-e a https://localhost:7219 címen.\n\nMegoldás:\n1. Indítsa el a backend szervert: dotnet run --launch-profile https\n2. Vagy használjon HTTP szervert a frontend számára: npx http-server -p 8080 -o');
+                            console.error('CORS/Network Error: Ellenőrizze a backend szerver státuszát és a CORS beállításokat.');
+                        } else {
+                            alert('Az üzenet küldés során hiba lépett fel. Próbálja később');
+                        }
+                        console.error('Error sending message:', error);
+                    } finally {
+                        // Re-enable submit button
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                    }
+                });
+            }
+        });
+
         // ==== for menu scroll
         const pageLink = document.querySelectorAll(".ud-menu-scroll");
 
