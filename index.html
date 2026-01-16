@@ -286,7 +286,7 @@
                         </div>
                         <div class="ud-pricing-body">
                             <ul>
-                                <li>Jegykezelés (incidensek)</li>
+                                <li>Jegykezelés</li>
                                 <li>Tudásbázis</li>
                                 <li>Önkiszolgáló portál</li>
                                 <li>Alap riportok</li>
@@ -331,7 +331,6 @@
                         </div>
                         <div class="ud-pricing-body">
                             <ul>
-                                <li>5 User</li>
                                 <li>Professional csomag minden funkciója</li>
                                 <li>Változáskezelés</li>
                                 <li>Problémakezelés</li>
@@ -1107,13 +1106,13 @@
     <script src="assets/js/main.js"></script>
     <script>
         // ==== Contact form handling
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const contactForm = document.getElementById('contactForm');
-            
+
             if (contactForm) {
-                contactForm.addEventListener('submit', async function(e) {
+                contactForm.addEventListener('submit', async function (e) {
                     e.preventDefault();
-                    
+
                     // Get form data
                     const formData = {
                         Name: document.getElementById('fullName').value.trim(),
@@ -1121,19 +1120,19 @@
                         PhoneNumber: document.getElementById('phone').value.trim(),
                         Message: document.getElementById('message').value.trim()
                     };
-                    
+
                     // Validate required fields
                     if (!formData.Name || !formData.Email || !formData.PhoneNumber || !formData.Message) {
                         alert('Kérjük, töltse ki az összes kötelező mezőt!');
                         return;
                     }
-                    
+
                     // Disable submit button during request
                     const submitBtn = contactForm.querySelector('button[type="submit"]');
                     const originalText = submitBtn.textContent;
                     submitBtn.disabled = true;
                     submitBtn.textContent = 'Küldés...';
-                    
+
                     try {
                         const response = await fetch('https://localhost:7219/api/Home/SendMessage', {
                             method: 'POST',
@@ -1142,7 +1141,7 @@
                             },
                             body: JSON.stringify(formData)
                         });
-                        
+
                         if (response.status === 200) {
                             // Success
                             alert('Az üzenet sikeresen elküldve');
